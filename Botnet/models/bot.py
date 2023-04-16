@@ -16,6 +16,9 @@ class Bot(Base):
     password: str = Column('password', String(100))
     port: str = Column('port', Integer)
 
+    def __repr__(self) -> str:
+        return f"{self.id} - {self.username}"
+
 
 if __name__ == '__main__':
     engine = create_engine('sqlite:///victims.db')
