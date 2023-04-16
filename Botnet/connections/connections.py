@@ -8,7 +8,7 @@ from contextlib import contextmanager
 
 @dataclass
 class Connections:
-    path: str = r"../models/victims.db"
+    path: str = r"./models/victims.db"
 
     @contextmanager
     def connection_database(self) -> 'Session':
