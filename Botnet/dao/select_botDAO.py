@@ -10,9 +10,20 @@ class SelectBotDao:
     conn: Connections = Connections()
 
     def select(self) -> Any:
-        with self.conn.connection() as bots:
+        with self.conn.connection_database() as bots:
             for bot in bots.query(Bot):
-                print(bot.username)
+                yield bot
+
+    def select_one(self, **kwargs) -> Any:
+        with self.conn.connection_database() as bots:
+            if kwargs.get('id'):
+                for bot in bots.query(Bot).\
+                        filter(Bot.id == kwargs.get('id')):
+                    return bot
+            elif kwargs.get('user'):
+                for bot in bots.query(Bot).\
+                        filter(Bot.username == kwargs.get('user')):
+                    return bot
 
 
 if __name__ == '__main__':
