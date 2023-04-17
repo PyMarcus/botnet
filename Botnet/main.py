@@ -1,4 +1,3 @@
-from threading import Thread
 from botnet import BotnetServer
 
 
