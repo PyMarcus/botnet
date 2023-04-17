@@ -1,6 +1,6 @@
 import abc
 from abc import abstractmethod
-from typing import Any, List
+from typing import Any, List, Optional
 
 
 class ServerInterface(abc.ABC):
@@ -29,5 +29,6 @@ class ServerInterface(abc.ABC):
                            host: str,
                            user: str,
                            password: str,
-                           option: int) -> None:
+                           option: int,
+                           command: Optional[str]) -> None:
         raise NotImplementedError()
